@@ -1,156 +1,183 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SunglassesPreview from "./SunglassesPreview";
+import glassesWayfarer from "@/assets/glasses-wayfarer.jpg";
+import glassesAviator from "@/assets/glasses-aviator.jpg";
+import glassesRound from "@/assets/glasses-round.jpg";
+import glassesClubmaster from "@/assets/glasses-clubmaster.jpg";
 
 const frameShapes = [
-  { id: "wayfarer", label: "Wayfarer", icon: "◼" },
-  { id: "aviator", label: "Aviator", icon: "▽" },
-  { id: "round", label: "Round", icon: "◯" },
-  { id: "clubmaster", label: "Clubmaster", icon: "◻" },
+  { id: "wayfarer", label: "Wayfarer", model: "SC-2140", img: glassesWayfarer },
+  { id: "aviator", label: "Aviator", model: "SC-3025", img: glassesAviator },
+  { id: "round", label: "Round", model: "SC-3447", img: glassesRound },
+  { id: "clubmaster", label: "Clubmaster", model: "SC-3016", img: glassesClubmaster },
 ];
 
 const frameColors = [
   { id: "#1a1a1a", label: "Matte Black" },
-  { id: "#8B6914", label: "Gold" },
-  { id: "#6B3A2A", label: "Tortoise" },
-  { id: "#C0C0C0", label: "Silver" },
-  { id: "#2C1810", label: "Dark Brown" },
-  { id: "#B22222", label: "Red" },
-  { id: "#1B3F8B", label: "Navy" },
-  { id: "#F5F5DC", label: "Ivory" },
+  { id: "#C5A55A", label: "Brushed Gold" },
+  { id: "#7B5B3A", label: "Havana Tortoise" },
+  { id: "#A8A8A8", label: "Gunmetal Silver" },
+  { id: "#3C2415", label: "Dark Havana" },
+  { id: "#8B1A1A", label: "Burgundy" },
+  { id: "#2B3D5B", label: "Navy" },
+  { id: "#E8DCC8", label: "Ivory" },
 ];
 
 const lensOptions = [
-  { id: "dark", label: "Classic Dark", preview: "bg-[hsl(0,0%,10%)]" },
-  { id: "blue", label: "Ocean Blue", preview: "bg-[hsl(220,60%,35%)]" },
-  { id: "green", label: "Forest Green", preview: "bg-[hsl(150,50%,25%)]" },
-  { id: "amber", label: "Warm Amber", preview: "bg-[hsl(38,70%,40%)]" },
-  { id: "rose", label: "Rose", preview: "bg-[hsl(340,55%,45%)]" },
-  { id: "mirror", label: "Mirror", preview: "bg-gradient-to-br from-[hsl(200,80%,60%)] via-[hsl(280,60%,50%)] to-[hsl(340,70%,55%)]" },
+  { id: "dark", label: "G-15 Classic", color: "hsl(120, 8%, 18%)" },
+  { id: "blue", label: "Gradient Blue", color: "hsl(210, 50%, 35%)" },
+  { id: "green", label: "Classic Green", color: "hsl(150, 30%, 28%)" },
+  { id: "amber", label: "Brown Gradient", color: "hsl(30, 50%, 35%)" },
+  { id: "rose", label: "Rose Gradient", color: "hsl(340, 35%, 42%)" },
+  { id: "mirror", label: "Silver Mirror", color: "linear-gradient(135deg, hsl(0,0%,70%), hsl(200,20%,75%))" },
 ];
 
 const templeStyles = [
-  { id: "standard", label: "Standard" },
-  { id: "thick", label: "Bold" },
-  { id: "thin", label: "Slim" },
+  { id: "standard", label: "Classic", width: "3px" },
+  { id: "thick", label: "Bold", width: "6px" },
+  { id: "thin", label: "Slim", width: "1.5px" },
 ];
 
-const tabs = ["Frame", "Color", "Lens", "Temple"] as const;
+const tabs = ["Model", "Frame", "Lens", "Temple"] as const;
 
 export default function SunglassesCustomizer() {
   const [frameShape, setFrameShape] = useState("wayfarer");
   const [frameColor, setFrameColor] = useState("#1a1a1a");
   const [lensColor, setLensColor] = useState("dark");
   const [templeStyle, setTempleStyle] = useState("standard");
-  const [activeTab, setActiveTab] = useState<typeof tabs[number]>("Frame");
+  const [activeTab, setActiveTab] = useState<typeof tabs[number]>("Model");
 
   const selectedFrame = frameShapes.find(f => f.id === frameShape);
-  const selectedLens = lensOptions.find(l => l.id === lensColor);
   const selectedColor = frameColors.find(c => c.id === frameColor);
+  const selectedLens = lensOptions.find(l => l.id === lensColor);
 
   return (
-    <section className="min-h-screen py-20 px-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Section title */}
+    <section className="min-h-screen py-24 px-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <p className="text-primary font-body text-sm tracking-[0.3em] uppercase mb-3">Customize</p>
-          <h2 className="font-display text-5xl md:text-7xl gold-text">BUILD YOUR PAIR</h2>
+          <p className="text-muted-foreground font-body text-xs tracking-[0.35em] uppercase mb-4">
+            Custom Eyewear Studio
+          </p>
+          <h2 className="font-display text-5xl md:text-7xl font-light text-foreground">
+            Build Your <span className="italic font-semibold">Perfect</span> Pair
+          </h2>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Preview */}
+        <div className="grid lg:grid-cols-5 gap-10 items-start">
+          {/* Preview - 3 columns */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="glass-card p-8 md:p-12"
+            className="lg:col-span-3 glass-card p-8 md:p-14 sticky top-24"
           >
-            <div className="animate-float">
-              <SunglassesPreview
-                frameShape={frameShape}
-                frameColor={frameColor}
-                lensColor={lensColor}
-                templeStyle={templeStyle}
-              />
+            <SunglassesPreview
+              frameShape={frameShape}
+              frameColor={frameColor}
+              lensColor={lensColor}
+              templeStyle={templeStyle}
+            />
+
+            {/* Model info */}
+            <div className="mt-10 pt-6 border-t border-border text-center">
+              <p className="font-display text-2xl font-semibold text-foreground">
+                {selectedFrame?.label} {selectedFrame?.model}
+              </p>
+              <div className="flex justify-center gap-3 mt-3">
+                {[selectedColor?.label, selectedLens?.label, templeStyle + " temple"].map((item, i) => (
+                  <span key={i} className="text-[11px] font-body tracking-widest uppercase text-muted-foreground">
+                    {i > 0 && <span className="mr-3">·</span>}
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            {/* Summary chips */}
-            <div className="flex flex-wrap gap-2 mt-8 justify-center">
-              {[selectedFrame?.label, selectedColor?.label, selectedLens?.label, templeStyle].map((item, i) => (
-                <motion.span
-                  key={i}
-                  layout
-                  className="px-3 py-1 text-xs font-body tracking-wider uppercase border border-border/50 rounded-full text-muted-foreground"
-                >
-                  {item}
-                </motion.span>
-              ))}
+            {/* Price */}
+            <div className="mt-8 flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-xs font-body tracking-wider uppercase">Starting from</p>
+                <p className="font-display text-4xl font-semibold text-foreground mt-1">$189</p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-8 py-3.5 bg-primary text-primary-foreground font-body text-sm font-medium tracking-widest uppercase rounded-sm hover:bg-foreground transition-colors duration-300"
+              >
+                Add to Bag
+              </motion.button>
             </div>
           </motion.div>
 
-          {/* Options */}
+          {/* Options - 2 columns */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="glass-card p-6 md:p-8"
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-2"
           >
             {/* Tabs */}
-            <div className="flex gap-1 mb-8 bg-secondary/30 p-1 rounded-xl">
+            <div className="flex border-b border-border mb-8">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-2.5 text-sm font-body font-medium tracking-wider uppercase rounded-lg transition-all duration-300
-                    ${activeTab === tab ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex-1 pb-3 text-xs font-body font-medium tracking-widest uppercase transition-all duration-300 relative
+                    ${activeTab === tab ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {tab}
+                  {activeTab === tab && (
+                    <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-px bg-foreground" />
+                  )}
                 </button>
               ))}
             </div>
 
-            {/* Tab content */}
+            {/* Content */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
               >
-                {activeTab === "Frame" && (
+                {activeTab === "Model" && (
                   <div className="space-y-3">
-                    <p className="text-muted-foreground text-sm font-body mb-4">Choose your frame shape</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {frameShapes.map((shape) => (
-                        <motion.button
-                          key={shape.id}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          onClick={() => setFrameShape(shape.id)}
-                          className={`option-button text-left ${frameShape === shape.id ? "option-button-active" : ""}`}
-                        >
-                          <span className="text-2xl block mb-1">{shape.icon}</span>
-                          <span className="font-display text-lg tracking-wider">{shape.label.toUpperCase()}</span>
-                        </motion.button>
-                      ))}
-                    </div>
+                    {frameShapes.map((shape) => (
+                      <motion.button
+                        key={shape.id}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => setFrameShape(shape.id)}
+                        className={`w-full option-button flex items-center gap-4 text-left ${frameShape === shape.id ? "option-button-active" : ""}`}
+                      >
+                        <img src={shape.img} alt={shape.label} className="w-20 h-14 object-contain rounded-lg bg-background" />
+                        <div>
+                          <span className="font-display text-lg font-semibold block">{shape.label}</span>
+                          <span className="text-muted-foreground text-xs font-body tracking-wider">{shape.model}</span>
+                        </div>
+                      </motion.button>
+                    ))}
                   </div>
                 )}
 
-                {activeTab === "Color" && (
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground text-sm font-body mb-4">Select frame color</p>
-                    <div className="grid grid-cols-4 gap-4">
+                {activeTab === "Frame" && (
+                  <div>
+                    <p className="text-muted-foreground text-sm font-body mb-5">Frame color</p>
+                    <div className="grid grid-cols-4 gap-4 mb-6">
                       {frameColors.map((color) => (
                         <motion.button
                           key={color.id}
-                          whileHover={{ scale: 1.15 }}
+                          whileHover={{ scale: 1.12 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setFrameColor(color.id)}
                           className={`color-swatch ${frameColor === color.id ? "color-swatch-active" : ""}`}
@@ -159,79 +186,54 @@ export default function SunglassesCustomizer() {
                         />
                       ))}
                     </div>
-                    <p className="text-center text-foreground font-display text-xl mt-4 tracking-wider">
-                      {frameColors.find(c => c.id === frameColor)?.label.toUpperCase()}
+                    <p className="text-center font-display text-xl text-foreground">
+                      {selectedColor?.label}
                     </p>
                   </div>
                 )}
 
                 {activeTab === "Lens" && (
                   <div className="space-y-3">
-                    <p className="text-muted-foreground text-sm font-body mb-4">Pick your lens tint</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {lensOptions.map((lens) => (
-                        <motion.button
-                          key={lens.id}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          onClick={() => setLensColor(lens.id)}
-                          className={`option-button flex items-center gap-3 ${lensColor === lens.id ? "option-button-active" : ""}`}
-                        >
-                          <div className={`w-8 h-8 rounded-full ${lens.preview}`} />
-                          <span className="font-display text-base tracking-wider">{lens.label.toUpperCase()}</span>
-                        </motion.button>
-                      ))}
-                    </div>
+                    <p className="text-muted-foreground text-sm font-body mb-5">Lens tint</p>
+                    {lensOptions.map((lens) => (
+                      <motion.button
+                        key={lens.id}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => setLensColor(lens.id)}
+                        className={`w-full option-button flex items-center gap-4 ${lensColor === lens.id ? "option-button-active" : ""}`}
+                      >
+                        <div
+                          className="w-8 h-8 rounded-full border border-border/50 flex-shrink-0"
+                          style={{ background: lens.color }}
+                        />
+                        <span className="font-body text-sm">{lens.label}</span>
+                      </motion.button>
+                    ))}
                   </div>
                 )}
 
                 {activeTab === "Temple" && (
                   <div className="space-y-3">
-                    <p className="text-muted-foreground text-sm font-body mb-4">Choose temple thickness</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {templeStyles.map((style) => (
-                        <motion.button
-                          key={style.id}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          onClick={() => setTempleStyle(style.id)}
-                          className={`option-button text-center ${templeStyle === style.id ? "option-button-active" : ""}`}
-                        >
-                          <div className="flex justify-center mb-2">
-                            <div
-                              className="bg-foreground rounded-full"
-                              style={{
-                                width: "40px",
-                                height: style.id === "thick" ? "6px" : style.id === "thin" ? "2px" : "4px",
-                              }}
-                            />
-                          </div>
-                          <span className="font-display text-base tracking-wider">{style.label.toUpperCase()}</span>
-                        </motion.button>
-                      ))}
-                    </div>
+                    <p className="text-muted-foreground text-sm font-body mb-5">Temple width</p>
+                    {templeStyles.map((style) => (
+                      <motion.button
+                        key={style.id}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => setTempleStyle(style.id)}
+                        className={`w-full option-button flex items-center gap-4 ${templeStyle === style.id ? "option-button-active" : ""}`}
+                      >
+                        <div className="w-12 flex items-center justify-center">
+                          <div className="bg-foreground rounded-full" style={{ width: "36px", height: style.width }} />
+                        </div>
+                        <span className="font-body text-sm">{style.label}</span>
+                      </motion.button>
+                    ))}
                   </div>
                 )}
               </motion.div>
             </AnimatePresence>
-
-            {/* Price & CTA */}
-            <motion.div
-              layout
-              className="mt-8 pt-6 border-t border-border/30"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-muted-foreground font-body text-sm">Your custom pair</span>
-                <span className="font-display text-3xl gold-text">$189</span>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02, boxShadow: "0 0 30px hsl(38 90% 55% / 0.3)" }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-4 bg-primary text-primary-foreground font-display text-xl tracking-wider rounded-xl transition-all duration-300"
-              >
-                ADD TO BAG
-              </motion.button>
-            </motion.div>
           </motion.div>
         </div>
       </div>

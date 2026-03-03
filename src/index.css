@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,43 +6,41 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 40 20% 95%;
+    --background: 36 30% 96%;
+    --foreground: 30 10% 15%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 40 20% 95%;
+    --card: 36 25% 93%;
+    --card-foreground: 30 10% 15%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 40 20% 95%;
+    --popover: 36 25% 93%;
+    --popover-foreground: 30 10% 15%;
 
-    --primary: 38 90% 55%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 30 20% 25%;
+    --primary-foreground: 36 30% 96%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 40 20% 95%;
+    --secondary: 33 20% 88%;
+    --secondary-foreground: 30 10% 15%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 33 15% 90%;
+    --muted-foreground: 30 8% 50%;
 
-    --accent: 38 70% 45%;
-    --accent-foreground: 0 0% 5%;
+    --accent: 28 35% 40%;
+    --accent-foreground: 36 30% 96%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 36 30% 96%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 38 90% 55%;
+    --border: 30 15% 85%;
+    --input: 30 15% 85%;
+    --ring: 30 20% 25%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --font-display: 'Bebas Neue', sans-serif;
+    --font-display: 'Cormorant Garamond', serif;
     --font-body: 'Inter', sans-serif;
 
-    --gradient-gold: linear-gradient(135deg, hsl(38 90% 55%), hsl(28 85% 45%));
-    --gradient-dark: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 10%));
-    --shadow-gold: 0 0 30px hsl(38 90% 55% / 0.15);
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
+    --shadow-soft: 0 4px 24px hsl(30 15% 15% / 0.06);
+    --shadow-card: 0 2px 16px hsl(30 15% 15% / 0.08);
   }
 }
 
@@ -52,61 +50,54 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: 0.05em;
   }
 }
 
 @layer components {
-  .gold-text {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-gold);
-  }
-
-  .gold-border {
-    border-image: var(--gradient-gold) 1;
+  .text-brand {
+    @apply text-accent;
   }
 
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl;
+    @apply bg-card border border-border rounded-2xl;
     box-shadow: var(--shadow-card);
   }
 
   .option-button {
-    @apply px-4 py-3 rounded-xl border border-border/50 bg-secondary/50 text-foreground 
-           transition-all duration-300 cursor-pointer hover:border-primary/50 hover:bg-primary/10;
+    @apply px-4 py-3 rounded-xl border border-border bg-background text-foreground 
+           transition-all duration-300 cursor-pointer hover:border-accent/40 hover:shadow-sm;
   }
 
   .option-button-active {
-    @apply border-primary bg-primary/20 shadow-[0_0_20px_hsl(38_90%_55%/0.2)];
+    @apply border-accent bg-accent/5 shadow-sm;
   }
 
   .color-swatch {
-    @apply w-10 h-10 rounded-full cursor-pointer border-2 border-transparent 
+    @apply w-10 h-10 rounded-full cursor-pointer border-2 border-border
            transition-all duration-300 hover:scale-110;
   }
 
   .color-swatch-active {
-    @apply border-primary scale-110 shadow-[0_0_15px_hsl(38_90%_55%/0.3)];
+    @apply border-accent scale-110 shadow-md;
   }
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(0 0% 8%);
+  background: hsl(36 25% 93%);
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(0 0% 25%);
+  background: hsl(30 15% 75%);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(38 90% 55%);
+  background: hsl(30 20% 50%);
 }
