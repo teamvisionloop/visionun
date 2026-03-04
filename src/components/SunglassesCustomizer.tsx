@@ -8,10 +8,10 @@ import glassesClubmaster from "@/assets/glasses-clubmaster.jpg";
 import glassesMeta from "@/assets/glasses-meta.jpg";
 
 const frameShapes = [
-  { id: "wayfarer", label: "Wayfarer", model: "SC-2140", img: glassesWayfarer, price: 189 },
-  { id: "aviator", label: "Aviator", model: "SC-3025", img: glassesAviator, price: 199 },
-  { id: "round", label: "Round", model: "SC-3447", img: glassesRound, price: 179 },
-  { id: "clubmaster", label: "Clubmaster", model: "SC-3016", img: glassesClubmaster, price: 209 },
+  { id: "Meta wayfarer", label: "Wayfarer", model: "SC-2140", img: glassesWayfarer, price: 189 },
+  { id: "Meta aviator", label: "Aviator", model: "SC-3025", img: glassesAviator, price: 199 },
+  { id: "Meta round", label: "Round", model: "SC-3447", img: glassesRound, price: 179 },
+  { id: "Metaclubmaster", label: "Clubmaster", model: "SC-3016", img: glassesClubmaster, price: 209 },
   { id: "meta", label: "Meta Smart", model: "SC-META", img: glassesMeta, price: 299, tag: "SMART" },
 ];
 
