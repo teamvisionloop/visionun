@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, useSpring } from "framer-motion";
 import SunglassesPreview from "./SunglassesPreview";
 
 const THEME_RED = "hsl(0, 100%, 56.19%)";
@@ -11,115 +11,110 @@ interface Props {
   templeStyle: string;
 }
 
-export default function Glass3DSection({ frameShape, frameColor, lensColor, templeStyle }: Props) {
-  const cardRef = useRef<HTMLDivElement>(null);
+export default function GravityMazeSection({ frameShape, frameColor, lensColor, templeStyle }: Props) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [isSupported, setIsSupported] = useState(false);
 
-  // Mouse tracking for the 3D effect
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  // Smooth out the "gravity" movement
+  const springX = useSpring(0, { stiffness: 100, damping: 20 });
+  const springY = useSpring(0, { stiffness: 100, damping: 20 });
 
-  // Smoothing the movement
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
+  useEffect(() => {
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      setIsSupported(true);
+      // Beta (tilt front/back) and Gamma (tilt left/right)
+      const x = e.gamma ? Math.max(-30, Math.min(30, e.gamma)) : 0;
+      const y = e.beta ? Math.max(-30, Math.min(30, e.beta)) : 0;
+      
+      springX.set(x * 4); // Multiplier for sensitivity
+      springY.set((y - 45) * 4); // Subtracting 45 assumes user holds phone at an angle
+    };
 
-  // Mapping mouse position to degrees of rotation
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["20deg", "-20deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-25deg", "25deg"]);
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", handleOrientation);
+    }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    return () => window.removeEventListener("deviceorientation", handleOrientation);
+  }, [springX, springY]);
 
-    // Normalize values between -0.5 and 0.5
-    x.set(mouseX / width - 0.5);
-    y.set(mouseY / height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
+  // Request permission for iOS
+  const requestPermission = () => {
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      (DeviceOrientationEvent as any).requestPermission()
+        .then((permissionState: string) => {
+          if (permissionState === 'granted') {
+            setIsSupported(true);
+          }
+        });
+    }
   };
 
   return (
-    <section className="py-24 bg-white flex flex-col items-center justify-center overflow-hidden">
-      <div className="max-w-4xl w-full px-6 text-center mb-16">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.6em] mb-4" style={{ color: THEME_RED }}>
-          360° Tactical View
+    <section className="py-24 bg-black overflow-hidden flex flex-col items-center justify-center relative min-h-[600px]">
+      
+      {/* Maze Background Decor */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none border-[40px] border-white/5" />
+      
+      <div className="relative z-10 text-center mb-12 px-6">
+        <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 mb-2">
+          Gravity Calibration
         </h2>
-        <p className="text-4xl md:text-6xl font-display font-light text-slate-900 leading-tight">
-          Inspect Your <span className="italic font-bold">Creation</span>
+        <p className="text-4xl font-display font-light text-white italic">
+          Tilt to <span style={{ color: THEME_RED }} className="font-bold">Navigate</span>
         </p>
+        
+        {!isSupported && (
+          <button 
+            onClick={requestPermission}
+            className="mt-6 px-6 py-2 border border-white text-white text-[10px] uppercase font-bold tracking-widest hover:bg-white hover:text-black transition-all"
+          >
+            Enable Motion Sensors
+          </button>
+        )}
       </div>
 
-      <div 
-        className="relative perspective-1000 w-full max-w-2xl aspect-video flex items-center justify-center"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        ref={cardRef}
-      >
-        {/* Floating Background Element */}
-        <motion.div 
-          className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center"
-          style={{ rotateX, rotateY, z: -50 }}
-        >
-          <span className="text-[20vw] font-black italic text-black">META</span>
-        </motion.div>
+      {/* The Maze Pit */}
+      <div className="relative w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] bg-[#0a0a0a] border-4 border-white/10 rounded-full shadow-[0_0_100px_rgba(255,0,0,0.1)] overflow-hidden">
+        
+        {/* Decorative Grid Lines */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:20px_20px]" />
 
-        {/* The 3D Rotating Card */}
+        {/* The Sunglasses (The Character) */}
         <motion.div
           style={{
-            rotateX,
-            rotateY,
-            transformStyle: "preserve-3d",
+            x: springX,
+            y: springY,
           }}
-          className="relative w-full h-full bg-white/50 backdrop-blur-xl border border-slate-100 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] flex items-center justify-center p-12"
+          className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
         >
-          {/* Internal Glow */}
-          <div className="absolute inset-0 rounded-[3rem] overflow-hidden">
-             <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-red-500/10 to-transparent blur-3xl" />
-          </div>
-
-          {/* Sunglasses Render */}
-          <motion.div 
-            style={{ translateZ: 100 }} // Gives the glasses actual "pop" out of the card
-            className="w-full h-full flex items-center justify-center"
-          >
+          <div className="w-40 drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]">
             <SunglassesPreview
               frameShape={frameShape}
               frameColor={frameColor}
               lensColor={lensColor}
               templeStyle={templeStyle}
             />
-          </motion.div>
-
-          {/* UI Details inside the 3D space */}
-          <motion.div 
-            style={{ translateZ: 50 }}
-            className="absolute bottom-10 left-10 flex flex-col items-start"
-          >
-            <span className="text-[10px] font-mono text-slate-400 uppercase">Model_Status</span>
-            <span className="text-xs font-bold text-slate-900">ENCRYPTED // {frameShape.toUpperCase()}</span>
-          </motion.div>
-
-          <motion.div 
-            style={{ translateZ: 50 }}
-            className="absolute top-10 right-10"
-          >
-            <div className="flex gap-1">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="w-1 h-1 rounded-full" style={{ backgroundColor: THEME_RED }} />
-              ))}
-            </div>
-          </motion.div>
+          </div>
         </motion.div>
+
+        {/* Maze Obstacles (Visual only for this demo, can be functional) */}
+        <div className="absolute top-1/4 left-1/4 w-32 h-2 bg-red-600/20 blur-sm rounded-full rotate-45" />
+        <div className="absolute bottom-1/4 right-1/4 w-32 h-2 bg-red-600/20 blur-sm rounded-full -rotate-12" />
+        <div className="absolute top-1/2 right-10 w-2 h-32 bg-red-600/20 blur-sm rounded-full" />
       </div>
 
-      <div className="mt-12 text-slate-400 font-mono text-[10px] tracking-widest animate-pulse">
-        [ MOVE CURSOR TO ROTATE ]
+      {/* Status Bar */}
+      <div className="mt-12 w-full max-w-xs space-y-2">
+        <div className="flex justify-between text-[9px] font-mono text-white/30 uppercase">
+          <span>X-AXIS_SHIFT</span>
+          <span>{Math.round(springX.get())}px</span>
+        </div>
+        <div className="h-1 w-full bg-white/5 overflow-hidden">
+          <motion.div 
+            className="h-full" 
+            style={{ width: "50%", x: springX, backgroundColor: THEME_RED }} 
+          />
+        </div>
       </div>
     </section>
   );
