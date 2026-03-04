@@ -1,113 +1,125 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import SunglassesPreview from "./SunglassesPreview";
 
 const THEME_RED = "hsl(0, 100%, 56.19%)";
 
-export default function GuerillaMazeSection() {
-  const [hasStarted, setHasStarted] = useState(false);
-  const [isHacked, setIsHacked] = useState(false);
-  const [error, setError] = useState(false);
+interface Props {
+  frameShape: string;
+  frameColor: string;
+  lensColor: string;
+  templeStyle: string;
+}
 
-  // Simple "Guerilla" logic: If mouse hits a wall, reset.
-  const handleWallCollision = () => {
-    if (hasStarted && !isHacked) {
-      setError(true);
-      setHasStarted(false);
-      setTimeout(() => setError(false), 500);
-    }
+export default function Glass3DSection({ frameShape, frameColor, lensColor, templeStyle }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Mouse tracking for the 3D effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  // Smoothing the movement
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  // Mapping mouse position to degrees of rotation
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["20deg", "-20deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-25deg", "25deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Normalize values between -0.5 and 0.5
+    x.set(mouseX / width - 0.5);
+    y.set(mouseY / height - 0.5);
   };
 
-  const handleFinish = () => {
-    if (hasStarted) setIsHacked(true);
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
   };
 
   return (
-    <section className="py-24 bg-black overflow-hidden flex flex-col items-center">
-      <div className="max-w-4xl w-full px-6">
-        
-        {/* Terminal Header */}
-        <div className="mb-10 font-mono text-[10px] sm:text-xs">
-          <p className="text-white/40 uppercase tracking-widest">
-            {isHacked ? "> ACCESS_GRANTED" : "> RESTRICTED_AREA_UNAUTHORIZED_PROXIMITY"}
-          </p>
-          <h2 className="text-4xl sm:text-6xl font-black text-white mt-4 italic uppercase">
-            The <span style={{ color: THEME_RED }}>Breach</span>
-          </h2>
-          <p className="text-white/60 mt-4 max-w-sm">
-            Navigate the security field without touching the red sectors to unlock the 'META_VOID' discount.
-          </p>
-        </div>
+    <section className="py-24 bg-white flex flex-col items-center justify-center overflow-hidden">
+      <div className="max-w-4xl w-full px-6 text-center mb-16">
+        <h2 className="text-[10px] font-black uppercase tracking-[0.6em] mb-4" style={{ color: THEME_RED }}>
+          360° Tactical View
+        </h2>
+        <p className="text-4xl md:text-6xl font-display font-light text-slate-900 leading-tight">
+          Inspect Your <span className="italic font-bold">Creation</span>
+        </p>
+      </div>
 
-        {/* Maze Container */}
-        <div className="relative bg-[#050505] border border-white/10 rounded-sm cursor-crosshair overflow-hidden p-4">
-          
-          {!isHacked ? (
-            <div className="relative h-[400px] w-full" onMouseLeave={() => setHasStarted(false)}>
-              
-              {/* The "Walls" (The Maze Layout) */}
-              <div 
-                className={`absolute inset-0 transition-opacity duration-300 ${error ? 'opacity-100' : 'opacity-20'}`}
-                onMouseEnter={handleWallCollision}
-              >
-                {/* Horizontal & Vertical Wall Blocks - Custom Layout */}
-                <div className="absolute top-[20%] left-0 w-[80%] h-2" style={{ backgroundColor: THEME_RED }} />
-                <div className="absolute top-[40%] right-0 w-[80%] h-2" style={{ backgroundColor: THEME_RED }} />
-                <div className="absolute top-[60%] left-0 w-[80%] h-2" style={{ backgroundColor: THEME_RED }} />
-                <div className="absolute top-[20%] left-[80%] w-2 h-[20%]" style={{ backgroundColor: THEME_RED }} />
-                <div className="absolute top-[40%] left-[15%] w-2 h-[20%]" style={{ backgroundColor: THEME_RED }} />
-              </div>
+      <div 
+        className="relative perspective-1000 w-full max-w-2xl aspect-video flex items-center justify-center"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        ref={cardRef}
+      >
+        {/* Floating Background Element */}
+        <motion.div 
+          className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center"
+          style={{ rotateX, rotateY, z: -50 }}
+        >
+          <span className="text-[20vw] font-black italic text-black">META</span>
+        </motion.div>
 
-              {/* Start Trigger */}
-              <button
-                onMouseEnter={() => setHasStarted(true)}
-                className={`absolute top-4 left-4 z-20 px-4 py-2 text-[10px] font-bold border ${hasStarted ? 'bg-white text-black' : 'text-white border-white/20'}`}
-              >
-                {hasStarted ? "TRACE_ACTIVE" : "START_TRACE"}
-              </button>
+        {/* The 3D Rotating Card */}
+        <motion.div
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+          }}
+          className="relative w-full h-full bg-white/50 backdrop-blur-xl border border-slate-100 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] flex items-center justify-center p-12"
+        >
+          {/* Internal Glow */}
+          <div className="absolute inset-0 rounded-[3rem] overflow-hidden">
+             <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-red-500/10 to-transparent blur-3xl" />
+          </div>
 
-              {/* End Trigger */}
-              <div
-                onMouseEnter={handleFinish}
-                className="absolute bottom-4 right-4 z-20 px-6 py-4 bg-white text-black font-black text-xs animate-bounce"
-              >
-                EXIT_VOID
-              </div>
+          {/* Sunglasses Render */}
+          <motion.div 
+            style={{ translateZ: 100 }} // Gives the glasses actual "pop" out of the card
+            className="w-full h-full flex items-center justify-center"
+          >
+            <SunglassesPreview
+              frameShape={frameShape}
+              frameColor={frameColor}
+              lensColor={lensColor}
+              templeStyle={templeStyle}
+            />
+          </motion.div>
 
-              {/* Visual Glitch Layer */}
-              {error && (
-                <div className="absolute inset-0 z-30 bg-red-600/20 flex items-center justify-center backdrop-blur-sm">
-                  <p className="text-white font-mono font-black text-4xl italic">SIGNAL LOST</p>
-                </div>
-              )}
+          {/* UI Details inside the 3D space */}
+          <motion.div 
+            style={{ translateZ: 50 }}
+            className="absolute bottom-10 left-10 flex flex-col items-start"
+          >
+            <span className="text-[10px] font-mono text-slate-400 uppercase">Model_Status</span>
+            <span className="text-xs font-bold text-slate-900">ENCRYPTED // {frameShape.toUpperCase()}</span>
+          </motion.div>
+
+          <motion.div 
+            style={{ translateZ: 50 }}
+            className="absolute top-10 right-10"
+          >
+            <div className="flex gap-1">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-1 h-1 rounded-full" style={{ backgroundColor: THEME_RED }} />
+              ))}
             </div>
-          ) : (
-            /* Success State */
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="h-[400px] flex flex-col items-center justify-center text-center p-8"
-            >
-              <div className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center mb-6">
-                <span className="text-4xl text-white">✓</span>
-              </div>
-              <h3 className="text-white text-3xl font-black mb-2">ENCRYPTION BROKEN</h3>
-              <p className="text-white/60 font-mono text-sm mb-8">Use code 'VOID_WALKER' for 25% off</p>
-              <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="px-8 py-3 bg-white text-black font-bold uppercase text-[10px] tracking-widest hover:invert transition-all"
-              >
-                Deploy Configuration
-              </button>
-            </motion.div>
-          )}
-        </div>
+          </motion.div>
+        </motion.div>
+      </div>
 
-        {/* Footer info */}
-        <div className="mt-6 flex justify-between font-mono text-[9px] text-white/20">
-          <span>PACKET_LOSS: 0%</span>
-          <span>ENCRYPTION: AES-256</span>
-          <span>STATUS: {hasStarted ? 'UPLOADING...' : 'IDLE'}</span>
-        </div>
+      <div className="mt-12 text-slate-400 font-mono text-[10px] tracking-widest animate-pulse">
+        [ MOVE CURSOR TO ROTATE ]
       </div>
     </section>
   );
