@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import HeroSection from "@/components/HeroSection";
 import SunglassesCustomizer from "@/components/SunglassesCustomizer";
 import VirtualTryOn from "@/components/VirtualTryOn";
-import MissionMaze from "@/components/MissionMaze"; // The new Maze component
+/ The new Maze component
 
 const THEME_RED = "hsl(0, 100%, 56.19%)";
 
@@ -29,14 +29,7 @@ const Index = () => {
       />
 
       {/* 2. THE MAZE (The Guerilla Bridge) */}
-      <div ref={mazeRef}>
-        <MissionMaze 
-          frameShape={frameShape}
-          frameColor={frameColor}
-          lensColor={lensColor}
-          templeStyle={templeStyle}
-        />
-      </div>
+
 
       {/* 3. CUSTOMIZER SECTION */}
       <div ref={customizerRef} id="customizer-section">
