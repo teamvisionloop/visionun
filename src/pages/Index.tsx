@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import SunglassesCustomizer from "@/components/SunglassesCustomizer";
 import VirtualTryOn from "@/components/VirtualTryOn";
@@ -19,7 +18,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <HeroSection
         onStartCustomizing={() => scrollTo(customizerRef)}
         onTryOn={() => scrollTo(tryOnRef)}
