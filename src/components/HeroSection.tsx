@@ -84,7 +84,7 @@ export default function HeroSection({ onStartCustomizing, onTryOn }: HeroSection
               onClick={onTryOn}
               className="px-10 py-5 border-2 border-white/40 text-white font-body text-[11px] font-bold tracking-[0.2em] uppercase rounded-2xl backdrop-blur-sm transition-all"
             >
-              Virtual Try-On
+              Play Maze
             </motion.button>
           </motion.div>
         </div>
