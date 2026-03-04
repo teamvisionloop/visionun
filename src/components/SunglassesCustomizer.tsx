@@ -120,13 +120,6 @@ export default function SunglassesCustomizer({
                   ${selected?.price || 189}
                 </p>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-5 sm:px-7 py-3 bg-primary text-primary-foreground font-body text-xs font-semibold tracking-[0.2em] uppercase rounded-sm"
-              >
-                Add to Bag
-              </motion.button>
             </div>
           </motion.div>
 
