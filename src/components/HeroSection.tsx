@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import heroBg from "@/assets/hero-bg.jpeg";
+import heroBg from "@/assets/hero-i.webp";
 
 interface HeroSectionProps {
   onStartCustomizing: () => void;
