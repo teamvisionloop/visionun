@@ -1,216 +1,113 @@
-import { useRef, useState, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Camera, CameraOff, FlipHorizontal, ZoomIn, ZoomOut, Move } from "lucide-react";
-import SunglassesPreview from "./SunglassesPreview";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
-interface VirtualTryOnProps {
-  frameShape: string;
-  frameColor: string;
-  lensColor: string;
-  templeStyle: string;
-}
+const THEME_RED = "hsl(0, 100%, 56.19%)";
 
-export default function VirtualTryOn({ frameShape, frameColor, lensColor, templeStyle }: VirtualTryOnProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [mirrored, setMirrored] = useState(true);
-  const [glassesPos, setGlassesPos] = useState({ x: 0, y: 0 });
-  const [glassesScale, setGlassesScale] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+export default function GuerillaMazeSection() {
+  const [hasStarted, setHasStarted] = useState(false);
+  const [isHacked, setIsHacked] = useState(false);
+  const [error, setError] = useState(false);
 
-  const startCamera = useCallback(async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-      setStream(mediaStream);
-      setCameraActive(true);
-    } catch (err) {
-      console.error("Camera access denied:", err);
+  // Simple "Guerilla" logic: If mouse hits a wall, reset.
+  const handleWallCollision = () => {
+    if (hasStarted && !isHacked) {
+      setError(true);
+      setHasStarted(false);
+      setTimeout(() => setError(false), 500);
     }
-  }, [facingMode]);
-
-  const stopCamera = useCallback(() => {
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-      setStream(null);
-    }
-    setCameraActive(false);
-  }, [stream]);
-
-  useEffect(() => {
-    return () => {
-      if (stream) stream.getTracks().forEach((t) => t.stop());
-    };
-  }, [stream]);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - glassesPos.x, y: e.clientY - glassesPos.y });
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    setGlassesPos({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+  const handleFinish = () => {
+    if (hasStarted) setIsHacked(true);
   };
-
-  const handlePointerUp = () => setIsDragging(false);
 
   return (
-    <section className="py-16 sm:py-24 px-4 sm:px-6">
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <p className="section-label mb-3">Virtual Try-On</p>
-          <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-light text-foreground">
-            See Them On <span className="italic font-semibold gold-text">You</span>
-          </h2>
-          <p className="text-muted-foreground text-sm font-body mt-3 max-w-md mx-auto">
-            Use your camera to preview how your custom sunglasses look. Drag to position, zoom to resize.
+    <section className="py-24 bg-black overflow-hidden flex flex-col items-center">
+      <div className="max-w-4xl w-full px-6">
+        
+        {/* Terminal Header */}
+        <div className="mb-10 font-mono text-[10px] sm:text-xs">
+          <p className="text-white/40 uppercase tracking-widest">
+            {isHacked ? "> ACCESS_GRANTED" : "> RESTRICTED_AREA_UNAUTHORIZED_PROXIMITY"}
           </p>
-        </motion.div>
+          <h2 className="text-4xl sm:text-6xl font-black text-white mt-4 italic uppercase">
+            The <span style={{ color: THEME_RED }}>Breach</span>
+          </h2>
+          <p className="text-white/60 mt-4 max-w-sm">
+            Navigate the security field without touching the red sectors to unlock the 'META_VOID' discount.
+          </p>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass-card overflow-hidden"
-        >
-          {/* Camera viewport */}
-          <div
-            ref={containerRef}
-            className="relative w-full aspect-[4/3] sm:aspect-video bg-secondary/30 overflow-hidden"
-          >
-            <AnimatePresence mode="wait">
-              {cameraActive ? (
-                <motion.div
-                  key="camera"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0"
-                >
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover"
-                    style={{ transform: mirrored ? "scaleX(-1)" : "none" }}
-                  />
+        {/* Maze Container */}
+        <div className="relative bg-[#050505] border border-white/10 rounded-sm cursor-crosshair overflow-hidden p-4">
+          
+          {!isHacked ? (
+            <div className="relative h-[400px] w-full" onMouseLeave={() => setHasStarted(false)}>
+              
+              {/* The "Walls" (The Maze Layout) */}
+              <div 
+                className={`absolute inset-0 transition-opacity duration-300 ${error ? 'opacity-100' : 'opacity-20'}`}
+                onMouseEnter={handleWallCollision}
+              >
+                {/* Horizontal & Vertical Wall Blocks - Custom Layout */}
+                <div className="absolute top-[20%] left-0 w-[80%] h-2" style={{ backgroundColor: THEME_RED }} />
+                <div className="absolute top-[40%] right-0 w-[80%] h-2" style={{ backgroundColor: THEME_RED }} />
+                <div className="absolute top-[60%] left-0 w-[80%] h-2" style={{ backgroundColor: THEME_RED }} />
+                <div className="absolute top-[20%] left-[80%] w-2 h-[20%]" style={{ backgroundColor: THEME_RED }} />
+                <div className="absolute top-[40%] left-[15%] w-2 h-[20%]" style={{ backgroundColor: THEME_RED }} />
+              </div>
 
-                  {/* Glasses overlay */}
-                  <div
-                    className="absolute top-1/2 left-1/2 cursor-grab active:cursor-grabbing touch-none"
-                    style={{
-                      transform: `translate(calc(-50% + ${glassesPos.x}px), calc(-50% + ${glassesPos.y}px)) scale(${glassesScale})`,
-                      width: "min(70%, 350px)",
-                      pointerEvents: "auto",
-                    }}
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                  >
-                    <SunglassesPreview
-                      frameShape={frameShape}
-                      frameColor={frameColor}
-                      lensColor={lensColor}
-                      templeStyle={templeStyle}
-                    />
-                  </div>
+              {/* Start Trigger */}
+              <button
+                onMouseEnter={() => setHasStarted(true)}
+                className={`absolute top-4 left-4 z-20 px-4 py-2 text-[10px] font-bold border ${hasStarted ? 'bg-white text-black' : 'text-white border-white/20'}`}
+              >
+                {hasStarted ? "TRACE_ACTIVE" : "START_TRACE"}
+              </button>
 
-                  {/* Drag hint */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 bg-background/60 backdrop-blur-sm rounded-full">
-                    <Move size={12} className="text-muted-foreground" />
-                    <span className="text-[10px] text-muted-foreground font-body tracking-wider">DRAG TO POSITION</span>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="placeholder"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-4"
-                >
-                  <div className="w-16 h-16 rounded-full border-2 border-border flex items-center justify-center">
-                    <Camera size={24} className="text-muted-foreground" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-foreground font-display text-lg mb-1">Enable Camera</p>
-                    <p className="text-muted-foreground text-xs font-body max-w-xs">
-                      Allow camera access to try on your custom sunglasses in real-time
-                    </p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={startCamera}
-                    className="px-6 py-2.5 bg-primary text-primary-foreground font-body text-xs font-semibold tracking-[0.2em] uppercase rounded-sm"
-                  >
-                    Start Camera
-                  </motion.button>
-                </motion.div>
+              {/* End Trigger */}
+              <div
+                onMouseEnter={handleFinish}
+                className="absolute bottom-4 right-4 z-20 px-6 py-4 bg-white text-black font-black text-xs animate-bounce"
+              >
+                EXIT_VOID
+              </div>
+
+              {/* Visual Glitch Layer */}
+              {error && (
+                <div className="absolute inset-0 z-30 bg-red-600/20 flex items-center justify-center backdrop-blur-sm">
+                  <p className="text-white font-mono font-black text-4xl italic">SIGNAL LOST</p>
+                </div>
               )}
-            </AnimatePresence>
-          </div>
-
-          {/* Controls */}
-          {cameraActive && (
-            <div className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 border-t border-border/40">
-              <button
-                onClick={() => setGlassesScale((s) => Math.max(0.3, s - 0.1))}
-                className="p-2 rounded-lg bg-secondary/50 text-foreground hover:bg-secondary transition-colors"
-                title="Zoom out"
-              >
-                <ZoomOut size={16} />
-              </button>
-              <button
-                onClick={() => setGlassesScale((s) => Math.min(2.5, s + 0.1))}
-                className="p-2 rounded-lg bg-secondary/50 text-foreground hover:bg-secondary transition-colors"
-                title="Zoom in"
-              >
-                <ZoomIn size={16} />
-              </button>
-              <button
-                onClick={() => setMirrored((m) => !m)}
-                className="p-2 rounded-lg bg-secondary/50 text-foreground hover:bg-secondary transition-colors"
-                title="Mirror"
-              >
-                <FlipHorizontal size={16} />
-              </button>
-              <button
-                onClick={() => {
-                  setGlassesPos({ x: 0, y: 0 });
-                  setGlassesScale(1);
-                }}
-                className="px-3 py-2 rounded-lg bg-secondary/50 text-foreground hover:bg-secondary transition-colors text-xs font-body tracking-wider"
-              >
-                RESET
-              </button>
-              <div className="w-px h-6 bg-border/40 mx-1" />
-              <button
-                onClick={stopCamera}
-                className="p-2 rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 transition-colors"
-                title="Stop camera"
-              >
-                <CameraOff size={16} />
-              </button>
             </div>
+          ) : (
+            /* Success State */
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="h-[400px] flex flex-col items-center justify-center text-center p-8"
+            >
+              <div className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center mb-6">
+                <span className="text-4xl text-white">✓</span>
+              </div>
+              <h3 className="text-white text-3xl font-black mb-2">ENCRYPTION BROKEN</h3>
+              <p className="text-white/60 font-mono text-sm mb-8">Use code 'VOID_WALKER' for 25% off</p>
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="px-8 py-3 bg-white text-black font-bold uppercase text-[10px] tracking-widest hover:invert transition-all"
+              >
+                Deploy Configuration
+              </button>
+            </motion.div>
           )}
-        </motion.div>
+        </div>
+
+        {/* Footer info */}
+        <div className="mt-6 flex justify-between font-mono text-[9px] text-white/20">
+          <span>PACKET_LOSS: 0%</span>
+          <span>ENCRYPTION: AES-256</span>
+          <span>STATUS: {hasStarted ? 'UPLOADING...' : 'IDLE'}</span>
+        </div>
       </div>
     </section>
   );
