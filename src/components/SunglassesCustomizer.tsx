@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SunglassesPreview from "./SunglassesPreview";
 
-// --- Types & Data ---
+// --- Assets ---
 import glassesWayfarer from "@/assets/glasses-wayfarer.jpg";
 import glassesAviator from "@/assets/glasses-aviator.jpg";
 import glassesRound from "@/assets/glasses-round.jpg";
@@ -69,110 +69,121 @@ export default function SunglassesCustomizer({
   const selectedLens = lensOptions.find(l => l.id === lensColor) || lensOptions[0];
 
   return (
-    <section className="min-h-screen py-12 sm:py-20 px-4 transition-colors duration-500" style={{ backgroundColor: THEME_RED }}>
-      <div className="max-w-6xl mx-auto">
+    <section className="min-h-screen py-12 sm:py-24 px-4 transition-colors duration-700" style={{ backgroundColor: THEME_RED }}>
+      <div className="max-w-7xl mx-auto">
         
-        {/* Header Section */}
-        <header className="text-center mb-12">
-          <motion.span 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="text-white/70 uppercase tracking-[0.4em] text-xs font-bold"
+        {/* Header */}
+        <header className="text-center mb-16">
+          <motion.p 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }}
+            className="text-white/80 uppercase tracking-[0.4em] text-[10px] sm:text-xs font-bold mb-4"
           >
-            Exclusive Collection
-          </motion.span>
+            Customization Studio
+          </motion.p>
           <motion.h2 
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-display font-light text-white mt-2"
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-6xl lg:text-7xl font-display font-light text-white"
           >
-            Design Your <span className="italic font-bold">Vision</span>
-          </h2 >
+            Craft Your <span className="italic font-bold">Icon</span>
+          </motion.h2>
         </header>
 
-        <div className="grid lg:grid-cols-12 gap-8 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-          {/* LEFT: Preview Card (The Main Viewport) */}
-          <div className="lg:col-span-7">
+          {/* LEFT: Preview Panel */}
+          <div className="lg:col-span-7 xl:col-span-8">
             <motion.div 
-              layout
-              className="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 lg:sticky lg:top-10"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-12 lg:sticky lg:top-12"
             >
-              <div className="relative aspect-video flex items-center justify-center">
-                 <SunglassesPreview
-                    frameShape={frameShape}
-                    frameColor={frameColor}
-                    lensColor={lensColor}
-                    templeStyle={templeStyle}
-                  />
+              <div className="relative min-h-[300px] flex items-center justify-center">
+                <SunglassesPreview
+                  frameShape={frameShape}
+                  frameColor={frameColor}
+                  lensColor={lensColor}
+                  templeStyle={templeStyle}
+                />
               </div>
 
-              <div className="mt-12 text-center border-t border-slate-100 pt-8">
-                <h3 className="text-2xl font-display font-bold text-slate-900">
-                  {selectedModel.label}
-                </h3>
-                <p className="text-slate-400 text-sm tracking-widest mt-1 uppercase">
-                  {selectedColor.label} • {selectedLens.label} • {templeStyle}
-                </p>
+              <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl font-display font-bold text-slate-900 leading-none">
+                    {selectedModel.label}
+                  </h3>
+                  <p className="text-slate-400 text-[11px] tracking-[0.2em] uppercase mt-3 font-medium">
+                    {selectedColor.label} / {selectedLens.label} / {templeStyle}
+                  </p>
+                </div>
                 
-                <div className="mt-8 flex items-center justify-between bg-slate-50 p-4 rounded-2xl">
-                    <div className="text-left">
-                        <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-tight">Total Price</span>
-                        <span className="text-3xl font-display font-black text-slate-900">${selectedModel.price}</span>
-                    </div>
-                    <button 
-                      className="px-8 py-4 rounded-xl text-white font-bold tracking-tighter hover:scale-105 active:scale-95 transition-all shadow-lg"
-                      style={{ backgroundColor: THEME_RED }}
-                    >
-                        CONFIRM ORDER
-                    </button>
+                <div className="flex items-center gap-6 bg-slate-50 px-6 py-4 rounded-3xl w-full md:w-auto justify-between md:justify-start">
+                  <div>
+                    <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-tight mb-0.5">Price</span>
+                    <span className="text-3xl font-display font-black text-slate-900">${selectedModel.price}</span>
+                  </div>
+                  <button 
+                    className="px-8 py-4 rounded-2xl text-white font-bold tracking-tighter hover:brightness-110 active:scale-95 transition-all shadow-lg"
+                    style={{ backgroundColor: THEME_RED }}
+                  >
+                    ADD TO BAG
+                  </button>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* RIGHT: Customization Controls */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden">
-              
-              {/* Navigation Tabs */}
-              <div className="flex bg-slate-50/50 p-2 gap-1">
+          {/* RIGHT: Selection Panel */}
+          <div className="lg:col-span-5 xl:col-span-4">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden"
+            >
+              {/* Tabs */}
+              <div className="flex bg-slate-50/80 p-2 gap-1">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all
-                      ${activeTab === tab ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+                    className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest rounded-[1.25rem] transition-all
+                      ${activeTab === tab 
+                        ? "bg-white text-slate-900 shadow-sm" 
+                        : "text-slate-400 hover:text-slate-600"}`}
                   >
                     {tab}
                   </button>
                 ))}
               </div>
 
-              <div className="p-6 h-[450px] overflow-y-auto custom-scrollbar">
+              <div className="p-6 max-h-[600px] overflow-y-auto overflow-x-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
                     className="space-y-3"
                   >
-                    {/* Models Tab */}
+                    {/* Model Tab */}
                     {activeTab === "Model" && frameShapes.map((shape) => (
                       <button
                         key={shape.id}
                         onClick={() => setFrameShape(shape.id)}
                         className={`w-full group flex items-center gap-4 p-3 rounded-2xl border-2 transition-all
-                          ${frameShape === shape.id ? "bg-red-50" : "border-slate-50 hover:border-slate-100"}`}
+                          ${frameShape === shape.id ? "bg-red-50/50" : "border-slate-50 hover:border-slate-100"}`}
                         style={{ borderColor: frameShape === shape.id ? THEME_RED : "" }}
                       >
-                        <div className="w-20 h-14 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0">
-                            <img src={shape.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                        <div className="w-20 h-14 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 p-1">
+                          <img src={shape.img} alt="" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="font-bold text-slate-900">{shape.label}</p>
-                          <p className="text-[10px] text-slate-400 uppercase">{shape.model}</p>
+                          <p className="font-bold text-slate-900 text-sm">{shape.label}</p>
+                          <p className="text-[10px] text-slate-400 uppercase tracking-tighter">{shape.model}</p>
                         </div>
-                        <span className="font-bold text-slate-900">${shape.price}</span>
+                        <span className="font-bold text-slate-900 text-sm px-2">${shape.price}</span>
                       </button>
                     ))}
 
@@ -186,8 +197,11 @@ export default function SunglassesCustomizer({
                             className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${frameColor === c.id ? "bg-slate-50" : "border-slate-50"}`}
                             style={{ borderColor: frameColor === c.id ? THEME_RED : "" }}
                           >
-                            <span className="w-6 h-6 rounded-full shadow-inner border border-black/10" style={{ backgroundColor: c.id }} />
-                            <span className="text-xs font-bold text-slate-700">{c.label}</span>
+                            <span 
+                              className="w-6 h-6 rounded-full shadow-inner border border-black/5 flex-shrink-0" 
+                              style={{ backgroundColor: c.id }} 
+                            />
+                            <span className="text-xs font-bold text-slate-700 truncate">{c.label}</span>
                           </button>
                         ))}
                       </div>
@@ -201,8 +215,11 @@ export default function SunglassesCustomizer({
                         className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${lensColor === lens.id ? "bg-slate-50" : "border-slate-50"}`}
                         style={{ borderColor: lensColor === lens.id ? THEME_RED : "" }}
                       >
-                        <div className="w-8 h-8 rounded-full" style={{ background: lens.color }} />
-                        <span className="font-bold text-slate-700">{lens.label}</span>
+                        <div 
+                          className="w-8 h-8 rounded-full shadow-sm flex-shrink-0" 
+                          style={{ background: lens.color }} 
+                        />
+                        <span className="font-bold text-slate-700 text-sm">{lens.label}</span>
                       </button>
                     ))}
 
@@ -214,16 +231,16 @@ export default function SunglassesCustomizer({
                         className={`w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${templeStyle === s.id ? "bg-slate-50" : "border-slate-50"}`}
                         style={{ borderColor: templeStyle === s.id ? THEME_RED : "" }}
                       >
-                        <div className="w-12 flex flex-col gap-1">
-                            <div className="bg-slate-900 rounded-full w-full" style={{ height: s.h }} />
+                        <div className="w-12 flex items-center">
+                          <div className="bg-slate-900 rounded-full w-full" style={{ height: s.h }} />
                         </div>
-                        <span className="font-bold text-slate-700">{s.label} Thickness</span>
+                        <span className="font-bold text-slate-700 text-sm">{s.label} Profile</span>
                       </button>
                     ))}
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           </div>
 
         </div>
