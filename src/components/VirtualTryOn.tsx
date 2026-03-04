@@ -4,6 +4,15 @@ import SunglassesPreview from "./SunglassesPreview";
 
 const THEME_RED = "hsl(0, 100%, 56.19%)";
 
+// Maze Grid Layout (0 = Path, 1 = Wall, 2 = Start, 3 = End)
+const MAZE_GRID = [
+  [2, 0, 1, 0, 0],
+  [1, 0, 1, 0, 1],
+  [0, 0, 0, 0, 1],
+  [0, 1, 1, 0, 0],
+  [0, 0, 1, 1, 3],
+];
+
 interface Props {
   frameShape: string;
   frameColor: string;
@@ -11,109 +20,136 @@ interface Props {
   templeStyle: string;
 }
 
-export default function GravityMazeSection({ frameShape, frameColor, lensColor, templeStyle }: Props) {
-  // We use coordinates to track the position in the maze
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [isColliding, setIsColliding] = useState(false);
+export default function TechMazeSection({ frameShape, frameColor, lensColor, templeStyle }: Props) {
+  const [pos, setPos] = useState({ r: 0, c: 0 }); // row and column
+  const [showPopup, setShowPopup] = useState(false);
+  const [error, setError] = useState(false);
 
-  const move = (direction: 'up' | 'down' | 'left' | 'right') => {
-    const step = 40;
-    const limit = 160; // Keeps the glasses inside the circle
+  const move = (dr: number, dc: number) => {
+    const newR = pos.r + dr;
+    const newC = pos.c + dc;
 
-    setPos(prev => {
-      let newX = prev.x;
-      let newY = prev.y;
-
-      if (direction === 'up') newY -= step;
-      if (direction === 'down') newY += step;
-      if (direction === 'left') newX -= step;
-      if (direction === 'right') newX += step;
-
-      // Simple boundary check
-      if (Math.abs(newX) > limit || Math.abs(newY) > limit) {
-        setIsColliding(true);
-        setTimeout(() => setIsColliding(false), 300);
-        return prev;
+    // Check boundaries
+    if (newR >= 0 && newR < MAZE_GRID.length && newC >= 0 && newC < MAZE_GRID[0].length) {
+      // Check for walls
+      if (MAZE_GRID[newR][newC] !== 1) {
+        setPos({ r: newR, c: newC });
+        
+        // Check for Finish
+        if (MAZE_GRID[newR][newC] === 3) {
+          setTimeout(() => setShowPopup(true), 400);
+        }
+      } else {
+        triggerError();
       }
+    } else {
+      triggerError();
+    }
+  };
 
-      return { x: newX, y: newY };
-    });
+  const triggerError = () => {
+    setError(true);
+    setTimeout(() => setError(false), 300);
   };
 
   return (
-    <section className="py-24 bg-black overflow-hidden flex flex-col items-center justify-center relative min-h-[800px]">
+    <section className="py-24 bg-white flex flex-col items-center justify-center min-h-screen relative overflow-hidden">
       
-      {/* Background HUD Decor */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-center">
-        <div className="w-[800px] h-[800px] border border-white rounded-full animate-[spin_20s_linear_infinite]" />
+      {/* Background Text Decor */}
+      <div className="absolute top-10 left-10 opacity-[0.03] select-none pointer-events-none">
+        <h2 className="text-[20vw] font-black leading-none">MAZE_01</h2>
       </div>
 
-      <div className="relative z-10 text-center mb-10 px-6">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40 mb-2">
-          Stress Test Protocol
+      <div className="text-center mb-10 z-10 px-4">
+        <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase mb-2" style={{ color: THEME_RED }}>
+          Restricted Navigation
         </h2>
-        <p className="text-4xl md:text-5xl font-display font-light text-white italic">
-          Manual <span style={{ color: THEME_RED }} className="font-bold uppercase">Calibration</span>
+        <p className="text-4xl md:text-5xl font-display font-light text-slate-900 leading-tight">
+          Find the <span className="italic font-bold">Exit</span>
         </p>
       </div>
 
-      {/* The Testing Chamber (Maze) */}
-      <div className={`relative w-[320px] h-[320px] sm:w-[500px] sm:h-[500px] bg-white rounded-full transition-all duration-300 ${isColliding ? 'ring-8 ring-red-600' : 'ring-4 ring-white/20 shadow-[0_0_100px_rgba(255,255,255,0.05)]'}`}>
-        
-        {/* Decorative Internal Lines */}
-        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,black_1px,transparent_1px)] bg-[size:20px_20px]" />
-        
-        {/* The Sunglasses "Character" */}
-        <motion.div
-          animate={{ x: pos.x, y: pos.y }}
-          transition={{ type: "spring", stiffness: 120, damping: 14 }}
-          className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
-        >
-          <div className="w-32 sm:w-48 drop-shadow-2xl">
-            <SunglassesPreview
-              frameShape={frameShape}
-              frameColor={frameColor}
-              lensColor={lensColor}
-              templeStyle={templeStyle}
-            />
-          </div>
-        </motion.div>
+      {/* The Maze Grid */}
+      <div 
+        className={`relative p-2 bg-slate-900 rounded-3xl shadow-2xl border-8 transition-colors duration-300 ${error ? 'border-red-500' : 'border-slate-800'}`}
+        style={{ display: 'grid', gridTemplateColumns: `repeat(${MAZE_GRID[0].length}, 1fr)` }}
+      >
+        {MAZE_GRID.map((row, rIndex) => 
+          row.map((cell, cIndex) => (
+            <div 
+              key={`${rIndex}-${cIndex}`}
+              className={`w-16 h-16 sm:w-24 sm:h-24 border border-white/5 flex items-center justify-center relative
+                ${cell === 1 ? 'bg-slate-800/50' : 'bg-transparent'}
+                ${cell === 3 ? 'bg-red-500/20' : ''}`}
+            >
+              {cell === 3 && (
+                <div className="absolute inset-0 flex items-center justify-center animate-pulse">
+                   <span className="text-white text-[10px] font-black font-mono">FINISH</span>
+                </div>
+              )}
 
-        {/* Hazard Zone */}
-        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-black/5" />
-        <div className="absolute top-0 left-1/2 w-[2px] h-full bg-black/5" />
+              {/* The Sunglasses Player */}
+              {pos.r === rIndex && pos.c === cIndex && (
+                <motion.div 
+                  layoutId="player"
+                  className="z-20 w-12 sm:w-20"
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
+                  <SunglassesPreview 
+                     frameShape={frameShape} frameColor={frameColor} 
+                     lensColor={lensColor} templeStyle={templeStyle} 
+                  />
+                </motion.div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
-      {/* Control Console - The Guerilla Remote */}
-      <div className="mt-16 flex flex-col items-center gap-4">
-        <div className="grid grid-cols-3 gap-3 p-4 bg-white rounded-3xl shadow-2xl">
-          <div /> {/* Spacer */}
-          <ControlButton icon="↑" onClick={() => move('up')} />
-          <div /> {/* Spacer */}
-          
-          <ControlButton icon="←" onClick={() => move('left')} />
-          <ControlButton icon="•" onClick={() => setPos({x:0, y:0})} center />
-          <ControlButton icon="→" onClick={() => move('right')} />
-          
-          <div /> {/* Spacer */}
-          <ControlButton icon="↓" onClick={() => move('down')} />
-          <div /> {/* Spacer */}
+      {/* Controller Controls */}
+      <div className="mt-12 flex flex-col items-center gap-6 z-10">
+        <div className="grid grid-cols-3 gap-2">
+          <div />
+          <MazeBtn icon="↑" onClick={() => move(-1, 0)} />
+          <div />
+          <MazeBtn icon="←" onClick={() => move(0, -1)} />
+          <MazeBtn icon="↓" onClick={() => move(1, 0)} />
+          <MazeBtn icon="→" onClick={() => move(0, 1)} />
         </div>
-        <p className="font-mono text-[9px] text-white/40 tracking-widest mt-4">
-          SYSTEM_X: {pos.x} // SYSTEM_Y: {pos.y}
-        </p>
       </div>
 
-      {/* Warning Flash */}
+      {/* WIN POPUP */}
       <AnimatePresence>
-        {isColliding && (
+        {showPopup && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-red-600/20 pointer-events-none z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
           >
-            <span className="text-white font-black text-6xl italic">BOUNDARY_HIT</span>
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+              className="bg-white rounded-[3rem] p-10 max-w-md w-full text-center shadow-[0_0_100px_rgba(255,0,0,0.4)]"
+            >
+              <div 
+                className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl"
+                style={{ backgroundColor: THEME_RED }}
+              >
+                ★
+              </div>
+              <h3 className="text-3xl font-display font-black text-slate-900 mb-4 uppercase italic">Access Granted</h3>
+              <p className="text-slate-500 mb-8 leading-relaxed">
+                You've successfully navigated the void. Your signature look is ready for final assembly.
+              </p>
+              <button 
+                onClick={() => {
+                  setShowPopup(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="w-full py-5 rounded-2xl text-white font-bold tracking-[0.2em] uppercase transition-transform hover:scale-105"
+                style={{ backgroundColor: THEME_RED }}
+              >
+                Customize Your Glasses
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -121,19 +157,13 @@ export default function GravityMazeSection({ frameShape, frameColor, lensColor, 
   );
 }
 
-// Sub-component for the buttons to keep the main code clean
-function ControlButton({ icon, onClick, center = false }: { icon: string, onClick: () => void, center?: boolean }) {
+function MazeBtn({ icon, onClick }: { icon: string, onClick: () => void }) {
   return (
-    <motion.button
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+    <button 
       onClick={onClick}
-      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl font-bold transition-colors
-        ${center 
-          ? 'bg-slate-100 text-slate-400' 
-          : 'bg-[hsl(0,100%,56.19%)] text-white shadow-lg'}`}
+      className="w-14 h-14 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xl hover:bg-black active:scale-90 transition-all border border-white/10"
     >
       {icon}
-    </motion.button>
+    </button>
   );
 }
